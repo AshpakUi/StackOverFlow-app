@@ -1,17 +1,21 @@
 import React,{useState} from 'react'
 import { useSelector ,useDispatch} from 'react-redux'
+import moment from "moment"
 import "./Question.css"
-import {Link, useParams,useNavigate} from "react-router-dom"
+import {Link, useParams,useNavigate,useLocation} from "react-router-dom"
 import upVotes from "../../assets/uparrow.png"
 import downVotes from "../../assets/downarrow.png"
 import Avatar from "../../components/Avatar/Avatar"
 import DisplayAnswer from './DisplayAnswer'
-import {postAnswer} from "../../actions/question"
+import {postAnswer,deleteQuestions} from "../../actions/question"
+import copy from "copy-to-clipboard"
+
+
   
 function QuestionDetails() {
+  const {id} = useParams()
+  console.log(id);
   const questionList = useSelector(state=>state.questionsReducer)
-  console.log(questionList.data);
-const {id} = useParams()
 
   // var questionList = [{
   //   _id:"1",
@@ -69,19 +73,29 @@ const {id} = useParams()
   const Navigate=useNavigate()
   const dispatch=useDispatch()
  const User=useSelector((state)=>(state.currentUserReducer))
+ const location=useLocation()
+ const url="http://localhost:3000"
 
-const handlePosAns=(e,answerLength)=>{
-e.preventDefault()
+ const handlePosAns=(e,answerLength)=>{
+   e.preventDefault()
 if(User===null){
 alert("Log-in or sign-up to answer a question")
 Navigate("/Auth")
 }else{
   if(Answer=== ""){
     alert("Enter an answer before submitting")
-  }else{dispatch(postAnswer({id,noOfAnswers:answerLength+1,answerBody:Answer,userAnswered:User.result.name}))}
+  }else{dispatch(postAnswer({id,noOfAnswers:answerLength+1,answerBody:Answer,userAnswered:User.result.name,userId:User.result._id}))}
+}}
+
+const handleShare=()=>{
+  copy(url+location.pathname)
 }
+
+const handleDelete=()=>{
+  dispatch(deleteQuestions(id,Navigate))
 }
-  return (
+
+return (
     <div className="question-details-page">
 {
   questionList.data===null?
@@ -98,7 +112,7 @@ Navigate("/Auth")
                 <p>{question.upVotes - question.downVotes}</p>
                 <img src={downVotes} alt="" width="28" />
               </div>
-              <div style={{with:"100%"}}>
+              <div style={{width:"100%"}}>
                   <p>{question.questionBody}</p>
                   <div className="question-details-tags">
                     {
@@ -108,15 +122,19 @@ Navigate("/Auth")
                     }
                   </div>
 
-                  <div className="question-action-user">
-
+                  <div className="question-actions-user">
                          <div>
-                          <button type='button'>Share</button>
-                          <button type='button'>Delete</button>
+                          <button type='button' onClick={()=>handleShare()}>Share</button>
+                          {
+                            User?.result?._id === question?.userId &&
+                            (
+                              <button type='button' onClick={handleDelete}>Delete</button>
+                            )
+                          }
                          </div>
 
                          <div>
-                          <p>asked {question.askedOn}</p> 
+                          <p>asked {moment(question.askedOn).fromNow()}</p> 
                           <Link to={`/User/${question._Id}`} className="user-link" style={{color:"#0086d8"}}>
                             <Avatar backgroundColor="orange" px="8px" py="5px" >{question.userPosted.charAt(0).toUpperCase()}</Avatar>
                             <div>
@@ -136,7 +154,7 @@ Navigate("/Auth")
                   <h3>
                     {question.noOfAnswers} Answers
                   </h3>
-                  <DisplayAnswer key={question._id} question={question}/>
+                  <DisplayAnswer key={question._id} question={question} handleShare={handleShare}/>
                 </section>
               )
              }

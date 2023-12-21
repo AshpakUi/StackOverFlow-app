@@ -16,7 +16,7 @@ const AskQuestion=()=>{
 
     const handleSubmit=(e)=>(
         e.preventDefault(),
-         dispatch(AskQuestions({questionTitle,questionBody,questionTags,userPosted:User.result.name},navigate))
+         dispatch(AskQuestions({questionTitle,questionBody,questionTags,userPosted:User.result.name,userId:User?.result._id},navigate))
      
     )
 
