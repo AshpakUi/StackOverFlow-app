@@ -34,17 +34,14 @@ export const login = async (req, res) => {
     const isPasswordCrt = await bcrypt.compare(password, existinguser.password);
         if(existinguser&&isPasswordCrt){
          console.log("user is succuessfull login");
-           res.status(222).json([existinguser])
+        const token = jwt.sign({ email: existinguser.email, id: existinguser._id }, "test", { expiresIn: "1h",});
+       res.status(200).json({ result: existinguser,token});
 }else{
-console.log("use is not login successfully");
 }
     if (!isPasswordCrt) {
       return res.status(400).json({ message: "Invalid credentials password is wrong" });
     }
-      
-    const token = jwt.sign({ email: newUser.email, id: newUser._id }, "test", { expiresIn: "1h",});
 
-    
   } catch (error) {
     res.status(500).json("Somethig went wrong..in sign in 2");
   }

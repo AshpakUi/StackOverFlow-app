@@ -7,15 +7,14 @@ import upVotes from "../../assets/uparrow.png"
 import downVotes from "../../assets/downarrow.png"
 import Avatar from "../../components/Avatar/Avatar"
 import DisplayAnswer from './DisplayAnswer'
-import {postAnswer,deleteQuestions} from "../../actions/question"
+import {postAnswer,deleteQuestions,voteQuestion} from "../../actions/question"
 import copy from "copy-to-clipboard"
 
 
   
 function QuestionDetails() {
   const {id} = useParams()
-  console.log(id);
-  const questionList = useSelector(state=>state.questionsReducer)
+ const questionList = useSelector(state=>state.questionsReducer)
 
   // var questionList = [{
   //   _id:"1",
@@ -95,6 +94,13 @@ const handleDelete=()=>{
   dispatch(deleteQuestions(id,Navigate))
 }
 
+const handleUpVote=()=>{
+  dispatch(voteQuestion(id,"upVote",User.result._id))
+}
+const handleDownVote=()=>{
+  dispatch(voteQuestion(id,"downVote",User.result._id))
+}
+
 return (
     <div className="question-details-page">
 {
@@ -108,9 +114,9 @@ return (
             <h1>{question.questionTitle}</h1>
             <div className="question-details-container-2">
               <div className="question-votes">
-                <img src={upVotes} alt=""width="28"  />
-                <p>{question.upVotes - question.downVotes}</p>
-                <img src={downVotes} alt="" width="28" />
+                <img src={upVotes} alt=""width="28"  onClick={handleUpVote}/>
+                <p>{question.upVotes.length - question.downVotes.length}</p>
+                <img src={downVotes} alt="" width="28"onClick={handleDownVote} />
               </div>
               <div style={{width:"100%"}}>
                   <p>{question.questionBody}</p>
